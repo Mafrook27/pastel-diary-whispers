@@ -8,13 +8,25 @@ const MoodTag = ({ mood }) => {
 
   return (
     <motion.div
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${colorClass}`}
+      initial={{ scale: 0, rotate: -180 }}
+      animate={{ scale: 1, rotate: 0 }}
+      transition={{ 
+        type: 'spring', 
+        stiffness: 500, 
+        damping: 25,
+        delay: 0.2 
+      }}
+      whileHover={{ scale: 1.05 }}
+      className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold border-2 shadow-sm hover:shadow-md transition-all duration-200 ${colorClass}`}
     >
-      <span className="mr-1">{icon}</span>
-      <span className="capitalize">{mood}</span>
+      <motion.span 
+        className="mr-2 text-lg"
+        animate={{ rotate: [0, 10, -10, 0] }}
+        transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+      >
+        {icon}
+      </motion.span>
+      <span className="capitalize font-medium">{mood}</span>
     </motion.div>
   );
 };

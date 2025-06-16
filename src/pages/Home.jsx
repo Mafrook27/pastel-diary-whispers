@@ -1,16 +1,46 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from '../components/Header';
 import DiaryForm from '../components/DiaryForm';
 import EntryCard from '../components/EntryCard';
 import { analyzeEntry } from '../utils/aiService';
+import { useToast } from '@/hooks/use-toast';
 
 const Home = () => {
   const [entries, setEntries] = useState([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const { toast } = useToast();
+
+  // Load entries from localStorage on component mount
+  useEffect(() => {
+    const savedEntries = localStorage.getItem('diaryEntries');
+    if (savedEntries) {
+      try {
+        setEntries(JSON.parse(savedEntries));
+      } catch (error) {
+        console.error('Error loading entries:', error);
+      }
+    }
+  }, []);
+
+  // Save entries to localStorage whenever entries change
+  useEffect(() => {
+    if (entries.length > 0) {
+      localStorage.setItem('diaryEntries', JSON.stringify(entries));
+    }
+  }, [entries]);
 
   const handleNewEntry = async (entryText) => {
+    if (!entryText.trim()) {
+      toast({
+        title: "Empty entry",
+        description: "Please write something before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
     
     const newEntry = {
@@ -35,11 +65,30 @@ const Home = () => {
             : entry
         )
       );
+
+      toast({
+        title: "Entry analyzed! ✨",
+        description: "Your diary entry has been processed with AI insights.",
+      });
     } catch (error) {
       console.error('Failed to analyze entry:', error);
+      toast({
+        title: "Analysis failed",
+        description: "Your entry was saved, but AI analysis couldn't be completed.",
+        variant: "destructive",
+      });
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  const clearAllEntries = () => {
+    setEntries([]);
+    localStorage.removeItem('diaryEntries');
+    toast({
+      title: "Entries cleared",
+      description: "All your diary entries have been removed.",
+    });
   };
 
   return (
@@ -53,38 +102,52 @@ const Home = () => {
           transition={{ duration: 0.5 }}
           className="space-y-8"
         >
-          <div className="text-center">
+          {/* Welcome Section */}
+          <div className="text-center space-y-4">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-2xl font-bold text-gray-800 mb-2"
+              className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent"
             >
-              Welcome to your safe space
+              Welcome to your safe space 💖
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-gray-600"
+              className="text-gray-600 text-lg max-w-2xl mx-auto"
             >
-              Share your thoughts and let AI provide gentle insights and support
+              Share your thoughts, emotions, and daily experiences. Let AI provide gentle insights and supportive guidance for your mental wellness journey.
             </motion.p>
           </div>
           
+          {/* Diary Form */}
           <DiaryForm onSubmit={handleNewEntry} isAnalyzing={isAnalyzing} />
           
+          {/* Entries Section */}
           {entries.length > 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
+              className="space-y-6"
             >
-              <h3 className="text-xl font-semibold text-gray-800 mb-6 text-center">
-                Your Journal Entries
-              </h3>
+              <div className="flex justify-between items-center">
+                <h3 className="text-2xl font-semibold text-gray-800">
+                  Your Journal Entries ({entries.length})
+                </h3>
+                {entries.length > 3 && (
+                  <button
+                    onClick={clearAllEntries}
+                    className="text-sm text-gray-500 hover:text-red-500 transition-colors"
+                  >
+                    Clear all entries
+                  </button>
+                )}
+              </div>
               
               <div className="space-y-6">
-                <AnimatePresence>
+                <AnimatePresence mode="popLayout">
                   {entries.map((entry, index) => (
                     <EntryCard
                       key={entry.id}
@@ -97,20 +160,23 @@ const Home = () => {
             </motion.div>
           )}
           
+          {/* Empty State */}
           {entries.length === 0 && !isAnalyzing && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="text-center py-12"
+              className="text-center py-16 space-y-6"
             >
-              <div className="text-6xl mb-4">📖</div>
-              <h3 className="text-lg font-medium text-gray-600 mb-2">
-                Your diary is waiting
-              </h3>
-              <p className="text-gray-500">
-                Write your first entry above to get started with AI-powered insights
-              </p>
+              <div className="text-8xl mb-6">📓</div>
+              <div className="space-y-3">
+                <h3 className="text-2xl font-semibold text-gray-700">
+                  Your diary awaits your first entry
+                </h3>
+                <p className="text-gray-500 max-w-md mx-auto">
+                  Start by sharing what's on your mind. Every thought matters, and our AI is here to provide gentle support and insights.
+                </p>
+              </div>
             </motion.div>
           )}
         </motion.div>
