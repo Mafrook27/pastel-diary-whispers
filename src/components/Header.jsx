@@ -1,12 +1,14 @@
 
 import { motion } from 'framer-motion';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { LogOut, Sparkles } from 'lucide-react';
+import { LogOut, Sparkles, Home, Settings } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const location = useLocation();
 
   const handleLogout = async () => {
     try {
@@ -26,7 +28,7 @@ const Header = () => {
       animate={{ opacity: 1, y: 0 }}
       className="bg-white/90 backdrop-blur-md border-b border-pink-100 sticky top-0 z-50 shadow-sm"
     >
-      <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         <motion.div 
           className="flex items-center space-x-3"
           whileHover={{ scale: 1.02 }}
@@ -39,7 +41,31 @@ const Header = () => {
           </h1>
         </motion.div>
         
+        {/* Navigation */}
         <div className="flex items-center space-x-4">
+          <nav className="hidden md:flex space-x-2">
+            <Link to="/">
+              <Button 
+                variant={location.pathname === '/' ? 'default' : 'ghost'}
+                size="sm"
+                className={location.pathname === '/' ? 'bg-gradient-to-r from-pink-500 to-purple-600' : ''}
+              >
+                <Home className="w-4 h-4 mr-2" />
+                Journal
+              </Button>
+            </Link>
+            <Link to="/manage">
+              <Button 
+                variant={location.pathname === '/manage' ? 'default' : 'ghost'}
+                size="sm"
+                className={location.pathname === '/manage' ? 'bg-gradient-to-r from-pink-500 to-purple-600' : ''}
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Manage
+              </Button>
+            </Link>
+          </nav>
+
           <div className="flex items-center space-x-3 bg-gradient-to-r from-pink-50 to-purple-50 rounded-full px-4 py-2">
             <Avatar className="w-8 h-8 bg-gradient-to-r from-pink-400 to-purple-500">
               <AvatarFallback className="text-white text-sm font-semibold">

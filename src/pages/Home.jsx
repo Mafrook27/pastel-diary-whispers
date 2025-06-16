@@ -1,9 +1,11 @@
 
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from '../components/Header';
 import DiaryForm from '../components/DiaryForm';
 import EntryCard from '../components/EntryCard';
+import { Button } from '@/components/ui/button';
 import { analyzeEntry } from '../utils/aiService';
 import { useToast } from '@/hooks/use-toast';
 

@@ -7,6 +7,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { useAuth } from './hooks/useAuth';
 import AuthForm from './components/AuthForm';
 import Home from './pages/Home';
+import DiaryManager from './pages/DiaryManager';
 import Spinner from './components/Spinner';
 
 const queryClient = new QueryClient();
@@ -22,7 +23,17 @@ const AppContent = () => {
     );
   }
 
-  return user ? <Home /> : <AuthForm />;
+  if (!user) {
+    return <AuthForm />;
+  }
+
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/manage" element={<DiaryManager />} />
+      <Route path="*" element={<Home />} />
+    </Routes>
+  );
 };
 
 const App = () => (
@@ -31,10 +42,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<AppContent />} />
-          <Route path="*" element={<AppContent />} />
-        </Routes>
+        <AppContent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
